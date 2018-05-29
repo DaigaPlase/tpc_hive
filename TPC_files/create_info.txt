@@ -1,0 +1,32 @@
+Recently I had some fun with installing Hadoop on my virtual cluster environment. After the installation I started to think about moving some data over to Hadoop and then create some hive tables – after all I play the part of a data architect in real life :). The following is what I did to load TPCH data that was residing on my D: drive (local) :
+
+hadoop fs -put D:\tpch_1gb\data\nation.tbl /tpch_1gb/nation/nation.tbl
+hadoop fs -put D:\tpch_1gb\data\orders.tbl /tpch_1gb/orders/orders.tbl
+hadoop fs -put D:\tpch_1gb\data\part.tbl /tpch_1gb/part/part.tbl
+hadoop fs -put D:\tpch_1gb\data\partsupp.tbl /tpch_1gb/partsupp/partsupp.tbl
+hadoop fs -put D:\tpch_1gb\data\region.tbl /tpch_1gb/region/region.tbl
+hadoop fs -put D:\tpch_1gb\data\supplier.tbl /tpch_1gb/supplier/supplier.tbl
+hadoop fs -put D:\tpch_1gb\data\lineitem.tbl /tpch_1gb/lineitem/lineitem.tbl
+hadoop fs -put D:\tpch_1gb\data\customer.tbl /tpch_1gb/customer/customer.tbl
+
+ 
+
+Note that I am creating these tables as “external tables” to avoid another copy of the data in my HDFS space. When you create external tables Hive works as a metadata repository forgoing the need to save the data to it’s default directory. DDL for TPCH:
+
+CREATE EXTERNAL TABLE IF NOT EXISTS lineitem (l_orderkey bigint , l_partkey bigint ,        l_suppkey bigint ,        l_linenumber bigint ,        l_quantity FLOAT,        l_extendedprice FLOAT,        l_discount FLOAT,        l_tax FLOAT,        l_returnflag STRING ,        l_linestatus STRING ,        l_shipdate STRING ,        l_commitdate STRING ,        l_receiptdate STRING ,        l_shipinstruct STRING,        l_shipmode STRING,        l_comment STRING ) COMMENT ‘CREATED BY MURSHEDZ’ ROW FORMAT DELIMITED FIELDS TERMINATED by ‘|’ STORED AS TEXTFILE LOCATION ‘/tpch_1gb/lineitem’;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS customer ( c_custkey BIGINT, c_name STRING, c_address STRING, c_nationkey INT, c_phone STRING, c_acctbal FLOAT, c_mktsegment STRING, c_comment STRING) COMMENT ‘CREATED BY MURSHEDZ’ ROW FORMAT DELIMITED FIELDS TERMINATED by ‘|’ STORED AS TEXTFILE LOCATION ‘/tpch_1gb/customer’;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS nation ( n_nationkey INT, n_name STRING, n_regionkey INT, n_comment STRING) COMMENT ‘CREATED BY MURSHEDZ’ ROW FORMAT DELIMITED FIELDS TERMINATED by ‘|’ STORED AS TEXTFILE LOCATION ‘/tpch_1gb/nation’;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS orders ( o_orderkey BIGINT, o_custkey BIGINT, o_orderstatus STRING, o_totalprice FLOAT, o_orderdate STRING, o_orderpriority STRING, o_clerk STRING, o_shippriority INT, o_comment STRING) COMMENT ‘CREATED BY MURSHEDZ’ ROW FORMAT DELIMITED FIELDS TERMINATED by ‘|’ STORED AS TEXTFILE LOCATION ‘/tpch_1gb/orders’;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS part ( p_partkey BIGINT, p_name STRING, p_mfgr STRING, p_brand STRING, p_type STRING, p_size INT, p_container STRING, p_retailprice FLOAT, p_comment STRING ) COMMENT ‘CREATED BY MURSHEDZ’ ROW FORMAT DELIMITED FIELDS TERMINATED by ‘|’ STORED AS TEXTFILE LOCATION ‘/tpch_1gb/part’;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS partsupp ( ps_partkey BIGINT, ps_suppkey BIGINT, ps_availqty INT, ps_supplycost FLOAT, ps_comment STRING ) COMMENT ‘CREATED BY MURSHEDZ’ ROW FORMAT DELIMITED FIELDS TERMINATED by ‘|’ STORED AS TEXTFILE LOCATION ‘/tpch_1gb/partsupp’;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS region (        r_regionkey INT, r_name STRING, r_comment STRING ) COMMENT ‘CREATED BY MURSHEDZ’ ROW FORMAT DELIMITED FIELDS TERMINATED by ‘|’ STORED AS TEXTFILE LOCATION ‘/tpch_1gb/region’;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS supplier ( s_suppkey BIGINT, s_name STRING, s_address STRING, s_nationkey INT, s_phone STRING, s_acctbal FLOAT, s_comment STRING ) COMMENT ‘CREATED BY MURSHEDZ’ ROW FORMAT DELIMITED FIELDS TERMINATED by ‘|’ STORED AS TEXTFILE LOCATION ‘/tpch_1gb/supplier’;
+
+Now you can run TPCH queries against it (with modifications). Queries to come later..
